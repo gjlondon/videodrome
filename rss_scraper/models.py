@@ -5,11 +5,12 @@ class User(models.Model):
 
 class Feed(models.Model):
     feed_uri = models.CharField(max_length=200)
-    users = models.ManyToManyField(User)
+    category = models.CharField(max_length=200)
+    user = models.ManyToManyField(User)
 
 class Post(models.Model):
     uri = models.CharField(max_length=1200)
-    post = models.ForeignKey(Feed)
+    feed = models.ForeignKey(Feed)
     html = models.CharField(max_length=20000)
 
 class Frame(models.Model):

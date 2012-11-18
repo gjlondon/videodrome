@@ -16,6 +16,8 @@ from django.template import loader, Context, RequestContext
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 
+import rss_scraper.models as mod
+
 def hello_world(request):
     print "hello world"
 
@@ -39,16 +41,25 @@ def get_feed(request):
     subs = get_subs()
     video_frames = []
     pass_frames = []
-    for group in subs.items:
+    i = 0
+    for group in subs.items():
+        if group[0] != "music blogs" or i>50:
+            continue
         for feed_uri in group[1]:
+            print "grabbing from %s" % feed_uri
             d = feedparser.parse(feed_uri)
-            
             for ent in d.entries:
                 r = requests.get(ent.link)
-                soup = BeautifulSoup(r.text)
-                frames = soup.findAll("iframe")
-                for frame in frames:
-                    video_frames.append(frame)
+                post = mod.Post(uri=ent.link, html=r.text)
+                try:
+                    soup = BeautifulSoup(r.text)
+                    frames = soup.findAll("iframe")
+                    for frame in frames:
+                        video_frames.append(frame)
+                        i += 1
+                except HTMLParseError as e:
+                    print r.text
+                    print e
     print video_frames
     
     for frame in video_frames:
@@ -64,8 +75,12 @@ def test_frame(request):
     
 def get_subs():
 
+    
     username = 'george.j.london@gmail.com'
     password = os.getenv("MYPASS")
+    user = mod.User(email=username)
+    user.save()
+    
     
     # Authenticate to obtain SID
     auth_url = 'https://www.google.com/accounts/ClientLogin'
@@ -99,6 +114,9 @@ def get_subs():
                         if item.attrib["name"] == "label":
                             label = item.text.rsplit("/",1)[-1]
         feeds[label].add(feed_uri) 
+    for item in feeds:
+        this_feed = mod.Feed(feed_uri = feed[0], category = label, user = username)
+        this_feed.save()
     return feeds        
                 
         

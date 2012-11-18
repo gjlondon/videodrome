@@ -3,3 +3,4 @@ venv
 workspace
 .project
 .pydevproject
+*.settings
