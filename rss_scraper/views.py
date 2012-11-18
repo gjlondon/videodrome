@@ -41,29 +41,44 @@ def get_feed(request):
     subs = get_subs()
     video_frames = []
     pass_frames = []
+    blocks = defaultdict(set)
     i = 0
     for group in subs.items():
-        if group[0] != "music blogs" or i>50:
+        if group[0] != "music blogs":
             continue
         for feed_uri in group[1]:
+            if i > 20:
+                    continue
             print "grabbing from %s" % feed_uri
+
             d = feedparser.parse(feed_uri)
+            title = d.feed.title
             for ent in d.entries:
+                if i > 20:
+                    continue
                 r = requests.get(ent.link)
                 post = mod.Post(uri=ent.link, html=r.text)
                 try:
                     soup = BeautifulSoup(r.text)
                     frames = soup.findAll("iframe")
                     for frame in frames:
-                        video_frames.append(frame)
+                        src = frame["src"]
+                        if "twitter" in src or "tumblr" in src or "facebook" in src or "comment" in src:
+                            continue
+                        blocks[title].add(str(frame))
+                        print frame
                         i += 1
-                except HTMLParseError as e:
-                    print r.text
+                except Exception as e:
+                    
                     print e
     print video_frames
     
-    for frame in video_frames:
-        pass_frames.append(str(frame))
+    for chunk in blocks:
+        this_block = []
+        this_block.append(chunk)
+        for item in blocks[chunk]:
+            this_block.append(item)
+        pass_frames.append(this_block)
     
     context = {"frames": pass_frames, "other": [1,2,3]}
     return render(request, 'frames.html', context)
@@ -115,8 +130,9 @@ def get_subs():
                             label = item.text.rsplit("/",1)[-1]
         feeds[label].add(feed_uri) 
     for item in feeds:
-        this_feed = mod.Feed(feed_uri = feed[0], category = label, user = username)
-        this_feed.save()
+        for feed in feeds[item]:
+            this_feed = mod.Feed(feed_uri = feed, category = item)
+            this_feed.save()
     return feeds        
                 
         
