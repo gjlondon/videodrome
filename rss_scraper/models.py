@@ -1,17 +1,17 @@
 from django.db import models
 
 class User(models.Model):
-    email = models.CharField(max_length=200)
+    email = models.CharField(max_length=200, unique=True)
 
 class Feed(models.Model):
-    feed_uri = models.CharField(max_length=200)
+    feed_uri = models.CharField(max_length=200, unique=True)
     category = models.CharField(max_length=200)
     user = models.ManyToManyField(User)
 
 class Post(models.Model):
-    uri = models.CharField(max_length=1200)
+    uri = models.CharField(max_length=1200, unique=True)
     feed = models.ForeignKey(Feed)
-    html = models.CharField(max_length=20000)
+    html = models.CharField(max_length=2000000)
 
 class Frame(models.Model):
     html = models.CharField(max_length=10000)

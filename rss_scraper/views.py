@@ -3,12 +3,14 @@ import urllib
 import urllib2
 import os
 from collections import defaultdict
-
+from random import shuffle
 
 import feedparser
 import requests
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
+from psycopg2 import IntegrityError
+
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
@@ -43,33 +45,51 @@ def get_feed(request):
     pass_frames = []
     blocks = defaultdict(set)
     i = 0
+    
     for group in subs.items():
         if group[0] != "music blogs":
             continue
-        for feed_uri in group[1]:
+        lis = list(group[1])
+        if lis:
+            shuffle(lis)
+        else:
+            continue
+        for feed_uri in lis:
             if i > 20:
                     continue
             print "grabbing from %s" % feed_uri
 
+            this_feed = mod.Feed.objects.filter(feed_uri = feed_uri)
             d = feedparser.parse(feed_uri)
-            title = d.feed.title
+            if d.feed.title:
+                title = d.feed.title
+            else:
+                title = "Untitled"
             for ent in d.entries:
                 if i > 20:
                     continue
                 r = requests.get(ent.link)
-                post = mod.Post(uri=ent.link, html=r.text)
+                post = mod.Post.objects.filter(uri=ent.link)
+                if not post:
+                    post = mod.Post(uri=ent.link, html=r.text, feed=this_feed)
+                    post.save()
+                
                 try:
                     soup = BeautifulSoup(r.text)
                     frames = soup.findAll("iframe")
                     for frame in frames:
-                        src = frame["src"]
+                        src = frame["src"].lower()
                         if "twitter" in src or "tumblr" in src or "facebook" in src or "comment" in src:
                             continue
-                        blocks[title].add(str(frame))
+                        blocks[str(title)].add(str(frame))
+                        frame = mod.Frame.objects.filter(html=str(frame))
+                        if not frame:
+                            frame = mod.Frame(html=str(frame))
+                            frame.save()
+                        
                         print frame
                         i += 1
                 except Exception as e:
-                    
                     print e
     print video_frames
     
@@ -93,10 +113,11 @@ def get_subs():
     
     username = 'george.j.london@gmail.com'
     password = os.getenv("MYPASS")
-    user = mod.User(email=username)
-    user.save()
-    
-    
+    user = mod.User.objects.filter(email=username)
+    if not user:
+        user = mod.User(email=username)
+        user.save()
+
     # Authenticate to obtain SID
     auth_url = 'https://www.google.com/accounts/ClientLogin'
     auth_req_data = urllib.urlencode({'Email': username,
@@ -131,8 +152,10 @@ def get_subs():
         feeds[label].add(feed_uri) 
     for item in feeds:
         for feed in feeds[item]:
-            this_feed = mod.Feed(feed_uri = feed, category = item)
-            this_feed.save()
+            this_feed = mod.Feed.objects.filter(feed_uri = feed)
+            if not this_feed:
+                this_feed = mod.Feed(feed_uri = feed, category = item, user = user)
+                this_feed.save()
     return feeds        
                 
         
