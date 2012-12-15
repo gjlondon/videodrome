@@ -104,10 +104,27 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+AUTHENTICATION_BACKENDS = (
+
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+    
+)
+
 ROOT_URLCONF = 'videodrome.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'videodrome.wsgi.application'
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+ 
+    "django.core.context_processors.request",
+    "django.contrib.auth.context_processors.auth",
+ 
+    "allauth.account.context_processors.account",
+    "allauth.socialaccount.context_processors.socialaccount",
+ 
+)
 
 TEMPLATE_DIRS = (
     "/Users/rogueleaderr/programming/projects/hackathons/videodrome/rss_scraper/templates",
@@ -130,6 +147,18 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     "rss_scraper",
     "videodrome",
+    
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.linkedin',
+    'allauth.socialaccount.providers.openid',
+    'allauth.socialaccount.providers.persona',
+    'allauth.socialaccount.providers.soundcloud',
+    'allauth.socialaccount.providers.twitter',
 )
 
 # A sample logging configuration. The only tangible logging
