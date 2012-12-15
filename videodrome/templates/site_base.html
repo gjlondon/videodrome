@@ -1,0 +1,24 @@
+{% extends "theme_base.html" %}
+
+
+{% load i18n %}
+{%  load static %}
+
+{% block nav %}
+    {% if user.is_authenticated %}
+        <ul>{% spaceless %}
+            <li id="tab_profile"><a href="{% url profile_detail user.username %}">{% trans "Profile" %}</a></li>
+            <li id="report_bug"><a href="mailto:george.j.london@gmail.com?Subject=[LinerNotes] Bug Report">Report a Bug</a></li>
+            <li id="signout"><a href="/accounts/logout">Signout</a></li>
+        {% endspaceless %}</ul>
+    {% endif %}
+{% endblock %}
+
+{% block footer %}
+    {% include "_footer.html" %}
+{% endblock %}
+
+{% block extra_body_base %}
+
+    {% block extra_body %}{% endblock %}
+{% endblock %}

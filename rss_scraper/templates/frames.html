@@ -1,0 +1,11 @@
+{% autoescape off %}
+	{% for block in frames %}
+		{% for frame in block %}
+			{% if forloop.first %}
+				<h1><p>{{ frame }}</p></h1>
+			{% else %}
+				<p>{{ frame }}</p>
+			{% endif %}
+		{% endfor %}
+	{% endfor %}
+{% endautoescape %}
