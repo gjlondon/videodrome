@@ -110,7 +110,8 @@ ROOT_URLCONF = 'videodrome.urls'
 WSGI_APPLICATION = 'videodrome.wsgi.application'
 
 TEMPLATE_DIRS = (
-    "rss_scraper/templates"
+    "/Users/rogueleaderr/programming/projects/hackathons/videodrome/rss_scraper/templates",
+    
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -128,6 +129,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     "rss_scraper",
+    "videodrome",
 )
 
 # A sample logging configuration. The only tangible logging

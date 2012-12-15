@@ -18,6 +18,7 @@ from django.template import loader, Context, RequestContext
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 
+
 import rss_scraper.models as mod
 
 def hello_world(request):
@@ -45,21 +46,22 @@ def get_feed(request):
     pass_frames = []
     blocks = defaultdict(set)
     i = 0
-    
+    # go through the subscribed feeds and grab iframes
     for group in subs.items():
         if group[0] != "music blogs":
             continue
         lis = list(group[1])
+        # avoid displaying in the same order ever refresh
         if lis:
             shuffle(lis)
         else:
             continue
         for feed_uri in lis:
-            if i > 20:
+            if i > 20: # only get the first twenty, otherwise it takes forever
                     continue
             print "grabbing from %s" % feed_uri
 
-            this_feed = mod.Feed.objects.filter(feed_uri = feed_uri)
+            this_feed = mod.Feed.objects.get(feed_uri = feed_uri)
             d = feedparser.parse(feed_uri)
             if d.feed.title:
                 title = d.feed.title
@@ -68,14 +70,32 @@ def get_feed(request):
             for ent in d.entries:
                 if i > 20:
                     continue
-                r = requests.get(ent.link)
-                post = mod.Post.objects.filter(uri=ent.link)
-                if not post:
-                    post = mod.Post(uri=ent.link, html=r.text, feed=this_feed)
-                    post.save()
                 
                 try:
-                    soup = BeautifulSoup(r.text)
+                    post = mod.Post.objects.get(uri=ent.link)
+                    text = post.html
+                except mod.Post.DoesNotExist:
+                    r = requests.get(ent.link)
+                    text = r.text
+                    print "no post exists fro %s" % ent.link
+                    if ent.link and len(r.text) > 0 and this_feed:
+                        try:
+                            print "Link: %s" % ent.link
+                            #print r.text
+                            print this_feed.id
+                            post = mod.Post(uri=ent.link, html=text) #, feed=this_feed)
+                            
+                            #print post.uri
+                            
+                            #print post
+                            post.save()
+                        except Exception as e:
+                            print e
+                    else: 
+                        print "Couldn't find a post for %s" % ent
+                
+                try:
+                    soup = BeautifulSoup(text)
                     frames = soup.findAll("iframe")
                     for frame in frames:
                         src = frame["src"].lower()
@@ -84,7 +104,7 @@ def get_feed(request):
                         blocks[str(title)].add(str(frame))
                         frame = mod.Frame.objects.filter(html=str(frame))
                         if not frame:
-                            frame = mod.Frame(html=str(frame))
+                            frame = mod.Frame(html=str(frame), post = post)
                             frame.save()
                         
                         print frame
@@ -105,8 +125,14 @@ def get_feed(request):
 
 def test_frame(request):
     uri = '<iframe frameborder="0" height="43" scrollbars="no" scrolling="no" src="http://www.audiomack.com/embed2/xclusiveszone/hatin-on-a-youngin?btn=ff8a00&amp;bg=34342e&amp;bbg=ff8a00&amp;vbg=4d4b42&amp;vol=ff8a00&amp;dbg=ff8a00" width="100%"></iframe>'
+   
     context = {"frame": uri, }
-    return render_to_response(request, "frame_test.html", context)
+    print "testing"
+    return render(request, "frame_test.html", context)
+
+def home(request):
+
+    return render(request, "homepage.html")
     
 def get_subs():
 
@@ -153,9 +179,13 @@ def get_subs():
     for item in feeds:
         for feed in feeds[item]:
             this_feed = mod.Feed.objects.filter(feed_uri = feed)
+            #print "feed %s already exists" % this_feed[0].user.all()
             if not this_feed:
-                this_feed = mod.Feed(feed_uri = feed, category = item, user = user)
+                this_feed = mod.Feed(feed_uri = feed, category = item)
                 this_feed.save()
+                this_feed.users.add(user)
+                print "added feed %s" % this_feed
+    
     return feeds        
                 
         
