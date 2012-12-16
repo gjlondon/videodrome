@@ -11,4 +11,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', direct_to_template, {"template": "homepage.html"}, name="home"),
     (r'^accounts/', include('allauth.urls')),
+    (r'^accounts/', include('userena.urls')),
 )

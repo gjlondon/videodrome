@@ -1,19 +1,17 @@
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}">
-    <head>
         {% load i18n %}
 		
-		{%  load static %}        
+		{%  load static %}      
+<html lang="{{ LANGUAGE_CODE }}">
+    <head>
+  
         <meta charset="utf-8" />
         <title>{% block head_title_base %}{% if SITE_NAME %}{{ SITE_NAME }} : {% endif %}{% block head_title %}{% endblock %}{% endblock %}</title>
-        <!-- HTML5 shim, for IE6-8 support of HTML elements -->
-        <!--[if lt IE 9]>
-            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+        
         <link rel="shortcut icon" href="{% get_static_prefix %}img/favicon.ico" />
+        
         <link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/bootstrap.css">
-        <link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/extra.css">
+		<link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/common.css">
         
         <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.7.1.min.js"></script>
         <script type="text/javascript" src="{% get_static_prefix %}js/jquery.form.js"></script>
@@ -27,16 +25,18 @@
         {% endblock %}       
     </head>
     
-    <body class="{% block body_class %}{% endblock %}" id="{% block body_id %}{% endblock %}">
-        
+    <body style="background: url('{% get_static_prefix %}/img/Texture-13.png');" >
+        <div class="background-body"  >
         {% block topbar_base %}
             <div class="topbar">
                 <div class="fill">
                     <div class="container">
                         {% block topbar %}
-                            <h3><a href="{% url home %}"><img src="{% get_static_prefix %}img/logo.png" /></a></h3>
-                            {% block nav %}{% endblock %}
-                            {% block account_bar %}{% include "_account_bar.html" %}{% endblock %}
+                            
+	                            <h3><a href="{% url home %}"><img src="{% get_static_prefix %}img/logo.png" /></a></h3>
+	                        
+	                            {% block nav %}{% endblock %}
+	                            {% block account_bar %}{% include "_account_bar.html" %}{% endblock %}
                         {% endblock %}
                     </div>
                 </div>
@@ -61,9 +61,7 @@
                 </div>
             </div>
         {% endblock %}
-        
-        {% block extra_body_base %}
-            {% block extra_body %}{% endblock %}
-        {% endblock %}
+
+        </div>
     </body>
 </html>

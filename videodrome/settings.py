@@ -9,6 +9,9 @@ execfile("/Users/rogueleaderr/programming/projects/hackathons/videodrome/videodr
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+PACKAGE_ROOT = os.path.abspath(os.path.dirname(__file__))
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -59,33 +62,25 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = ''
 
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+# Absolute path to the directory that holds static files like app media.
+# Example: "/home/media/media.lawrence.com/apps/"
+STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
 
-# URL prefix for static files.
-# Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/static/'
+# URL that handles the static files like app media.
+# Example: "http://media.lawrence.com"
+STATIC_URL = "/static/"
 
-# Additional locations of static files
-STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
+# Additional directories which hold static files
+STATICFILES_DIRS = [
+]
 
-# List of finder classes that know how to find static files in
-# various locations.
 STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder"
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '30%^ar=!$p56)-3!#u$@^p!b-v@zk16yutr41f1cj3&amp;r4@=9ju'
+SECRET_KEY = os.getenv("django-secret")
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -108,6 +103,9 @@ AUTHENTICATION_BACKENDS = (
 
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
+    'userena.backends.UserenaAuthenticationBackend',
+    'guardian.backends.ObjectPermissionBackend',
+    
     
 )
 
@@ -151,14 +149,13 @@ INSTALLED_APPS = (
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.github',
-    'allauth.socialaccount.providers.linkedin',
-    'allauth.socialaccount.providers.openid',
-    'allauth.socialaccount.providers.persona',
-    'allauth.socialaccount.providers.soundcloud',
     'allauth.socialaccount.providers.twitter',
+    
+    "userena", 
+    "guardian",
+    "easy_thumbnails"
+
+    
 )
 
 # A sample logging configuration. The only tangible logging
@@ -190,5 +187,18 @@ LOGGING = {
     }
 }
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.getenv("my_email")
+EMAIL_HOST_PASSWORD = os.getenv("MYPASS")
+
+ANONYMOUS_USER_ID = -1
+
+AUTH_PROFILE_MODULE = "videodrome.MyProfile"
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/account/signin/'
+LOGOUT_URL = '/account/signout/'
 
 #DATABASES['default'] =  dj_database_url.config()

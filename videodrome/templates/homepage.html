@@ -8,9 +8,6 @@
 {% block head_title %}{% trans "Welcome" %}{% endblock %}
 
 {% block extra_loads %}
-	
-	<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
-	<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
 
 {% endblock %}
 
@@ -18,31 +15,40 @@
 
 {% block banner %}
 
-    <div class="span14">
-	    <div class="centered_text">
-		    <div >
-				<img id="intro_video" src="{% get_static_prefix %}img/video.jpg" style="margin-bottom:20px;" />
-				   <!-- <h1>{% trans "Welcome to Videodrome" %}</h1>
-				    <p><h2>EXFM for Music Videos</h2> -->
-			</div>
-	    </div>
-	</div>
-	
-
-<div style="margin-top:45px; padding-top:15px; margin-bottom: -30px; border-top:1px solid #ccc;">
-	{% if not user.is_authenticated %}
-	    <h2>Sign Up Now</h2>
-	    <p> 
-	        {% blocktrans %}
-	        Sign up now so that we can start personalizing recommendations just for you!
-	        {% endblocktrans %}
-	    </p>
+    <div class="span13 offset3">
+    <div class="hero-unit" >
 	    
-	        {% url what_next as what_next_url %}
-	        <p class="what_next">{% blocktrans %}Wondering <a href="{{ what_next_url }}" class="btn primary large">What Next</a>?{% endblocktrans %}</p>
+	    	
+	    		<div id="homepage_intro">
+		
+			
+					   <h1>{% trans "Welcome to Videodrome" %}</h1>
+					   <p><h2>EXFM for Music Videos</h2>
 	
-	        {% url account_login as login_url %}
-	        
-    {% endif %}
+				</div>
+				<div class="span10">
+					<a href="/feed" class="btn primary large">Start</a>
+				</div>
+		</div>
+	</div>
+	<div class="span12"></div>
+	<br>
+	
+	<div class="container">
+		{% if not user.is_authenticated %}
+		    <h2>Sign Up Now</h2>
+		    <p> 
+		        {% blocktrans %}
+		        Sign up now so that we can start personalizing recommendations just for you!
+		        {% endblocktrans %}
+		    </p>
+		    
+		        {% url what_next as what_next_url %}
+		        <p class="what_next">{% blocktrans %}Wondering <a href="{{ what_next_url }}" class="btn primary large">What Next</a>?{% endblocktrans %}</p>
+		
+		        {% url account_login as login_url %}
+		        
+	    {% endif %}
+	</div>
+
 {% endblock %}
-</div>
