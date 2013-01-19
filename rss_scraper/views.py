@@ -96,8 +96,10 @@ def get_feed(request):
                 
                 try:
                     soup = BeautifulSoup(text)
-                    title = soup.findAll("title")
-                    print title
+                    post_title = soup.findAll("title")[0]
+                    post.title = post_title
+                    post.save()
+                    print post_title
                     frames = soup.findAll("iframe")
                     for frame in frames:
                         src = frame["src"].lower()
@@ -141,7 +143,7 @@ def get_subs():
     
     username = 'george.j.london@gmail.com'
     password = os.getenv("MYPASS")
-    user = mod.User.objects.filter(email=username)
+    user = mod.User.objects.filter(email=username)[0]
     if not user:
         user = mod.User(email=username)
         user.save()
@@ -185,9 +187,8 @@ def get_subs():
             if not this_feed:
                 this_feed = mod.Feed(feed_uri = feed, category = item)
                 this_feed.save()
-                import pdb
-                pdb.set_trace()
-                this_feed.users.add(queryset=user)
+                user.save()
+                this_feed.users.add(user)
                 print "added feed %s" % this_feed
     
     return feeds        
