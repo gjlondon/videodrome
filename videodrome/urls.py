@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     
     url(r'', include('rss_scraper.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', direct_to_template, {"template": "homepage.html"}, name="home"),
+    url(r'^$', direct_to_template, {"template": "index.html"}, name="home"),
     (r'^accounts/', include('allauth.urls')),
 
 )
