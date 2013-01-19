@@ -75,7 +75,11 @@ def get_feed(request):
                     post = mod.Post.objects.get(uri=ent.link)
                     text = post.html
                 except mod.Post.DoesNotExist:
-                    r = requests.get(ent.link)
+                    try:
+                        r = requests.get(ent.link)
+                    except ConnectionError as e:
+                        print e
+                        continue
                     text = r.text
                     print "no post exists fro %s" % ent.link
                     if ent.link and len(r.text) > 0 and this_feed:
@@ -96,6 +100,10 @@ def get_feed(request):
                 
                 try:
                     soup = BeautifulSoup(text)
+                    post_title = soup.findAll("title")[0]
+                    post.title = post_title
+                    post.save()
+                    print post_title
                     frames = soup.findAll("iframe")
                     for frame in frames:
                         src = frame["src"].lower()
@@ -139,7 +147,7 @@ def get_subs():
     
     username = 'george.j.london@gmail.com'
     password = os.getenv("MYPASS")
-    user = mod.User.objects.filter(email=username)
+    user = mod.User.objects.filter(email=username)[0]
     if not user:
         user = mod.User(email=username)
         user.save()
@@ -163,7 +171,7 @@ def get_subs():
     reader_req = urllib2.Request(reader_url, None, header)
     reader_resp = urllib2.urlopen(reader_req)
     reader_resp_content = reader_resp.read()
-
+    # TODO rogueleaderr get post title
     root = ET.fromstring(str(reader_resp_content))
     feeds = defaultdict(set)
     for obj in root[0]:
@@ -183,6 +191,7 @@ def get_subs():
             if not this_feed:
                 this_feed = mod.Feed(feed_uri = feed, category = item)
                 this_feed.save()
+                user.save()
                 this_feed.users.add(user)
                 print "added feed %s" % this_feed
     
