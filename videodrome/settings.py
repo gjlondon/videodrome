@@ -151,9 +151,7 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'allauth.socialaccount.providers.twitter',
     
-    "userena", 
-    "guardian",
-    "easy_thumbnails"
+   "south",
 
     
 )

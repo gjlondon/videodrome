@@ -11,6 +11,7 @@ class Feed(models.Model):
 class Post(models.Model):
     uri = models.CharField(max_length=1200, primary_key=True)
    # feed = models.ForeignKey(Feed)
+    title = models.CharField(max_length=10000)
     html = models.CharField(max_length=2000000)
 
 class Frame(models.Model):

@@ -96,6 +96,8 @@ def get_feed(request):
                 
                 try:
                     soup = BeautifulSoup(text)
+                    title = soup.findAll("title")
+                    print title
                     frames = soup.findAll("iframe")
                     for frame in frames:
                         src = frame["src"].lower()
@@ -163,7 +165,7 @@ def get_subs():
     reader_req = urllib2.Request(reader_url, None, header)
     reader_resp = urllib2.urlopen(reader_req)
     reader_resp_content = reader_resp.read()
-
+    # TODO rogueleaderr get post title
     root = ET.fromstring(str(reader_resp_content))
     feeds = defaultdict(set)
     for obj in root[0]:
@@ -183,7 +185,9 @@ def get_subs():
             if not this_feed:
                 this_feed = mod.Feed(feed_uri = feed, category = item)
                 this_feed.save()
-                this_feed.users.add(user)
+                import pdb
+                pdb.set_trace()
+                this_feed.users.add(queryset=user)
                 print "added feed %s" % this_feed
     
     return feeds        
