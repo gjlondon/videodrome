@@ -8,6 +8,7 @@ from random import shuffle
 import feedparser
 import requests
 from bs4 import BeautifulSoup
+import HTMLParser
 import xml.etree.ElementTree as ET
 from psycopg2 import IntegrityError
 
@@ -39,6 +40,8 @@ def server_error(request, template_name='500.html'):
 def index(request):
     return render(request, 'home.html')
 
+def get_posts_from_feed(feed):
+    return
 
 def get_feed(request):
     subs = get_subs()
@@ -63,21 +66,21 @@ def get_feed(request):
 
             this_feed = mod.Feed.objects.get(feed_uri = feed_uri)
             d = feedparser.parse(feed_uri)
-            if d.feed.title:
+            try:
                 title = d.feed.title
-            else:
+            except AttributeError:
                 title = "Untitled"
             for ent in d.entries:
                 if i > 20:
-                    continue
-                
+                    continue          
                 try:
                     post = mod.Post.objects.get(uri=ent.link)
                     text = post.html
                 except mod.Post.DoesNotExist:
                     try:
                         r = requests.get(ent.link)
-                    except ConnectionError as e:
+                    except requests.ConnectionError as e:
+                        print "Could not connect"
                         print e
                         continue
                     text = r.text
@@ -85,40 +88,37 @@ def get_feed(request):
                     if ent.link and len(r.text) > 0 and this_feed:
                         try:
                             print "Link: %s" % ent.link
-                            #print r.text
                             print this_feed.id
-                            post = mod.Post(uri=ent.link, html=text) #, feed=this_feed)
-                            
-                            #print post.uri
-                            
-                            #print post
+                            post = mod.Post(uri=ent.link, html=text)
                             post.save()
                         except Exception as e:
                             print e
                     else: 
                         print "Couldn't find a post for %s" % ent
                 
-                try:
-                    soup = BeautifulSoup(text)
-                    post_title = soup.findAll("title")[0]
-                    post.title = post_title
-                    post.save()
-                    print post_title
-                    frames = soup.findAll("iframe")
-                    for frame in frames:
-                        src = frame["src"].lower()
-                        if "twitter" in src or "tumblr" in src or "facebook" in src or "comment" in src:
-                            continue
-                        blocks[str(title)].add(str(frame))
-                        frame = mod.Frame.objects.filter(html=str(frame))
-                        if not frame:
-                            frame = mod.Frame(html=str(frame), post = post)
-                            frame.save()
-                        
-                        print frame
-                        i += 1
-                except Exception as e:
-                    print e
+                if post:
+                    try:
+                        soup = BeautifulSoup(text)
+                        post_titles = soup.findAll("title")
+                        if post_titles:
+                            post.title = post_titles[0]
+                            
+                        print post.title
+                        frames = soup.findAll("iframe")
+                        for frame in frames:
+                            src = frame["src"].lower()
+                            if "twitter" in src or "tumblr" in src or "facebook" in src or "comment" in src:
+                                continue
+                            blocks[str(title)].add(str(frame))
+                            frame = mod.Frame.objects.filter(html=str(frame))
+                            if not frame:
+                                frame = mod.Frame(html=str(frame), post = post)
+                                frame.save()
+                            
+                            print frame
+                            i += 1
+                    except HTMLParser.HTMLParseError as e:
+                        print "Soup problem", e
     print video_frames
     
     for chunk in blocks:
@@ -132,6 +132,17 @@ def get_feed(request):
     return render(request, 'frames.html', context)
 
 def test_frame(request):
+    uri = '<iframe frameborder="0" height="43" scrollbars="no" scrolling="no" src="http://www.audiomack.com/embed2/xclusiveszone/hatin-on-a-youngin?btn=ff8a00&amp;bg=34342e&amp;bbg=ff8a00&amp;vbg=4d4b42&amp;vol=ff8a00&amp;dbg=ff8a00" width="100%"></iframe>'
+   
+    context = {"frame": uri, }
+    print "testing"
+    return render(request, "frame_test.html", context)
+
+def next(request, username):
+    user = mod.User.objects.filter(email=username)[0]
+    subs = get_subs()
+    feeds = Feed.objects.filter(user)
+    feed = feeds[0]
     uri = '<iframe frameborder="0" height="43" scrollbars="no" scrolling="no" src="http://www.audiomack.com/embed2/xclusiveszone/hatin-on-a-youngin?btn=ff8a00&amp;bg=34342e&amp;bbg=ff8a00&amp;vbg=4d4b42&amp;vol=ff8a00&amp;dbg=ff8a00" width="100%"></iframe>'
    
     context = {"frame": uri, }
