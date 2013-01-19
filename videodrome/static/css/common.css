@@ -1,0 +1,66 @@
+#centered_text {
+	
+	text-align: right;
+}
+.centered_text {
+	text-align: center;
+}
+
+
+
+.message-box{
+	margin-top: 50px;
+}
+.alert-message{
+	margin-top: 50px;
+}
+
+#homepage_intro{
+	
+	
+	margin-top: 70px;
+	border-top:3px solid #ccc;
+	border-bottom:3px solid #ccc;
+	
+		
+}
+html{
+	height: 100%;
+    border: 1px solid transparent;
+}
+
+
+body { min-height: 100% }
+
+.container{
+	width:340px;
+	
+	zoom:1;
+
+}
+
+.container:after{
+	clear:both;
+	}
+
+.hero-unit {
+  padding: 70px;
+  margin-top: 30px;
+	margin-bottom: 30px;
+  background-color: #eeeeef;
+  -webkit-border-radius: 6px;
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+}
+
+.hero-unit h1 {
+  margin-bottom: 30px;
+  margin-top: 30px;
+  font-size: 60px;
+  line-height: 1;
+  letter-spacing: -1px;
+  color: inherit;
+}
+
+
+

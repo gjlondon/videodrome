@@ -1,0 +1,54 @@
+function my_callback(data){
+    alert(data.message);
+}
+
+  $(document).ready(function()
+  {
+	  $("#iris").css('background', 'gold');
+
+  });
+  
+
+
+$(function(){
+<<<<<<< HEAD
+
+	  $('*').click(function(){
+		  $(this).attr('value',"don't click me");
+	  });
+	  
+=======
+  
+>>>>>>> dajax works. woo.
+			var availableTags = [
+			"ActionScript",
+			"AppleScript",
+			"Asp",
+			"BASIC",
+			"C",
+			"C++",
+			"Clojure",
+			"COBOL",
+			"ColdFusion",
+			"Erlang",
+			"Fortran",
+			"Groovy",
+			"Haskell",
+			"Java",
+			"JavaScript",
+			"Lisp",
+			"Perl",
+			"PHP",
+			"Python",
+			"Ruby",
+			"Scala",
+			"Scheme"
+			];
+
+			$( "#tags" ).autocomplete({
+			source: availableTags
+			});
+
+		});
+
+		

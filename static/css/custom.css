@@ -1,0 +1,8 @@
+.hero-unit{
+  background-color:#fff;
+  margin-bottom:30px;
+  padding:60px;
+  -webkit-border-radius:6px;
+  -moz-border-radius:6px;
+  order-radius:6px;
+}
