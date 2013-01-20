@@ -1,12 +1,122 @@
-// Place all the styles related to the videodrome controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
-
-//login-register
-.register-login{
-	height:200px;	
+/* line 24, ../../app/assets/stylesheets/videodrome.css.scss */
+.row .row {
+  margin: 0 !important;
 }
 
-// media 
-.media-player{height:100%;width:100%;position:fixed;padding:10px;border-left:1px solid #eee;}
-.youtube-placement{height:250px;background:#111;}
+/* line 25, ../../app/assets/stylesheets/videodrome.css.scss */
+.column, .columns {
+  padding: 0px !important;
+}
+
+/* line 29, ../../app/assets/stylesheets/videodrome.css.scss */
+.app-container {
+  background: #222;
+  min-height: 40rem;
+  font-family: "freight-sans-pro",sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  color: white;
+}
+
+/* line 35, ../../app/assets/stylesheets/videodrome.css.scss */
+.register-login {
+  height: 12rem;
+  background: #f45b3d;
+  color: #eff3a9;
+}
+/* line 39, ../../app/assets/stylesheets/videodrome.css.scss */
+.register-login .register {
+  text-align: center;
+}
+/* line 41, ../../app/assets/stylesheets/videodrome.css.scss */
+.register-login .register h3 {
+  color: #eee;
+  margin-top: 41px;
+}
+/* line 43, ../../app/assets/stylesheets/videodrome.css.scss */
+.register-login .log-in {
+  text-align: center;
+}
+/* line 45, ../../app/assets/stylesheets/videodrome.css.scss */
+.register-login .log-in h3 {
+  color: #eee;
+  margin-top: 41px;
+}
+
+/* line 50, ../../app/assets/stylesheets/videodrome.css.scss */
+.media-player {
+  width: 100%;
+  position: fixed;
+  padding: 10px;
+}
+
+/* line 51, ../../app/assets/stylesheets/videodrome.css.scss */
+.youtube-placement {
+  height: 250px;
+  background: #111;
+}
+
+/* line 55, ../../app/assets/stylesheets/videodrome.css.scss */
+.logo {
+  font-family: "freight-sans-pro",sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 3em;
+  text-align: center;
+  margin-bottom: 4rem;
+  border-bottom: 5px solid #555555;
+  width: 100%;
+  padding-bottom: 50px;
+}
+
+/* line 61, ../../app/assets/stylesheets/videodrome.css.scss */
+.recent-container {
+  border-right: 1px solid #555555;
+  min-height: 1000px !important;
+  padding-top: 62px !important;
+}
+
+/* line 64, ../../app/assets/stylesheets/videodrome.css.scss */
+.recent-favorites h4 {
+  color: #EEE;
+  padding-left: 10px;
+}
+/* line 65, ../../app/assets/stylesheets/videodrome.css.scss */
+.recent-favorites ul {
+  border-top: 1px solid #555555;
+}
+/* line 66, ../../app/assets/stylesheets/videodrome.css.scss */
+.recent-favorites ul li {
+  list-style: none;
+  padding: 12px 10px;
+  border-bottom: 1px solid #555555;
+}
+
+/* line 74, ../../app/assets/stylesheets/videodrome.css.scss */
+.stream-container {
+  padding-top: 40px !important;
+}
+
+/* line 75, ../../app/assets/stylesheets/videodrome.css.scss */
+.stream-item {
+  padding: 12px 5px;
+  border-bottom: 1px solid #555555;
+}
+
+/* line 76, ../../app/assets/stylesheets/videodrome.css.scss */
+.play-item {
+  float: right;
+  margin-top: 25px;
+}
+
+/* line 78, ../../app/assets/stylesheets/videodrome.css.scss */
+.item-timestamp {
+  display: block;
+  color: #333;
+  margin-top: 5px;
+}
+
+/* line 79, ../../app/assets/stylesheets/videodrome.css.scss */
+.item-blog-source {
+  display: block;
+}
