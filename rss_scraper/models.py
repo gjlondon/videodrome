@@ -9,11 +9,13 @@ class Feed(models.Model):
     users = models.ManyToManyField(User)
 
 class Post(models.Model):
-    uri = models.CharField(max_length=1200, primary_key=True)
-   # feed = models.ForeignKey(Feed)
+    
+    uri = models.CharField(max_length=1200, unique=True)
+    feed = models.ForeignKey(Feed)
     title = models.CharField(max_length=10002)
     html = models.CharField(max_length=2000000)
 
 class Frame(models.Model):
     html = models.CharField(max_length=10000)
     post = models.ForeignKey(Post)
+    seen = models.BooleanField(default=False)

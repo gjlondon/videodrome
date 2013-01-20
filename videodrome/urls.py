@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', direct_to_template, {"template": "index.html"}, name="home"),
     (r'^accounts/', include('allauth.urls')),
-    url(r'^api/(?P<username>\w*)/post/next/$', 'rss_scraper.views.next'),
+    url(r'^api/(?P<username>\w*)/post/next/$', 'rss_scraper.views.next', name="next"),
+    url(r'^api/(?P<username>\w*)/post/(?P<num>\d*)$', 'rss_scraper.views.get_frame_by_id', name="next"),
 
 )

@@ -18,7 +18,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import loader, Context, RequestContext
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
-
+from django.utils import simplejson
 
 import rss_scraper.models as mod
 
@@ -40,14 +40,79 @@ def server_error(request, template_name='500.html'):
 def index(request):
     return render(request, 'home.html')
 
-def get_posts_from_feed(feed):
-    return
+def get_posts_from_feed(feed_uri):
+    posts = []
+    
+    print "grabbing from %s" % feed_uri
+
+    this_feed = mod.Feed.objects.get(feed_uri = feed_uri)
+    d = feedparser.parse(feed_uri)
+    try:
+        title = d.feed.title
+    except AttributeError:
+        title = "Untitled"
+    for ent in d.entries:
+        post = None         
+        ent_link = ent.link
+        try:
+            post = mod.Post.objects.get(uri=ent_link)
+            text = post.html
+        except mod.Post.DoesNotExist:
+            import pdb
+            #pdb.set_trace()
+            post = parse_post(ent_link)
+        if post:
+            posts.append(post)
+    return title, posts
+
+def parse_post(link):
+    found_frames = set()
+    try:
+        try:
+            r = requests.get(link)
+        except requests.ConnectionError as e:
+            print "Could not connect"
+            print e
+            return
+        text = r.text
+        print "no post exists fro %s" % link
+        if link and len(r.text) > 0:
+            print "Link: %s" % link
+            post = mod.Post(uri=link, html=text)
+            post.save()
+        else: 
+            print "Couldn't find a post for %s" % ent
+            return
+        soup = BeautifulSoup(text)
+        post_titles = soup.findAll("title")
+        if post_titles:
+            post.title = post_titles[0]
+            print post.title
+        else:
+            print "post has no title"
+        frames = soup.findAll("iframe")
+        for frame in frames:
+            src = frame["src"].lower()
+            if "twitter" in src or "tumblr" in src or "facebook" in src or "comment" in src:
+                continue
+            found_frames.add(str(frame))
+            frame_obj = mod.Frame.objects.filter(html=str(frame))
+            if not frame:
+                frame_obj = mod.Frame(html=str(frame), post = post)
+                frame_obj.save()            
+            print frame
+    except HTMLParser.HTMLParseError as e:
+        print "Soup problem", e
+        return
+    return found_frames
+        
 
 def get_feed(request):
     subs = get_subs()
     video_frames = []
     pass_frames = []
     blocks = defaultdict(set)
+    posts_by_feed = {}
     i = 0
     # go through the subscribed feeds and grab iframes
     for group in subs.items():
@@ -61,65 +126,16 @@ def get_feed(request):
             continue
         for feed_uri in lis:
             if i > 20: # only get the first twenty, otherwise it takes forever
-                    continue
-            print "grabbing from %s" % feed_uri
-
-            this_feed = mod.Feed.objects.get(feed_uri = feed_uri)
-            d = feedparser.parse(feed_uri)
-            try:
-                title = d.feed.title
-            except AttributeError:
-                title = "Untitled"
-            for ent in d.entries:
-                if i > 20:
-                    continue          
-                try:
-                    post = mod.Post.objects.get(uri=ent.link)
-                    text = post.html
-                except mod.Post.DoesNotExist:
-                    try:
-                        r = requests.get(ent.link)
-                    except requests.ConnectionError as e:
-                        print "Could not connect"
-                        print e
-                        continue
-                    text = r.text
-                    print "no post exists fro %s" % ent.link
-                    if ent.link and len(r.text) > 0 and this_feed:
-                        try:
-                            print "Link: %s" % ent.link
-                            print this_feed.id
-                            post = mod.Post(uri=ent.link, html=text)
-                            post.save()
-                        except Exception as e:
-                            print e
-                    else: 
-                        print "Couldn't find a post for %s" % ent
-                
-                if post:
-                    try:
-                        soup = BeautifulSoup(text)
-                        post_titles = soup.findAll("title")
-                        if post_titles:
-                            post.title = post_titles[0]
-                            
-                        print post.title
-                        frames = soup.findAll("iframe")
-                        for frame in frames:
-                            src = frame["src"].lower()
-                            if "twitter" in src or "tumblr" in src or "facebook" in src or "comment" in src:
-                                continue
-                            blocks[str(title)].add(str(frame))
-                            frame = mod.Frame.objects.filter(html=str(frame))
-                            if not frame:
-                                frame = mod.Frame(html=str(frame), post = post)
-                                frame.save()
-                            
-                            print frame
-                            i += 1
-                    except HTMLParser.HTMLParseError as e:
-                        print "Soup problem", e
-    print video_frames
+                continue
+            title, posts = get_posts_from_feed(feed_uri)
+            posts_by_feed[feed_uri] = posts
+            i += len(posts)
+            for post in posts:
+                frames = mod.Frame.objects.filter(post=post)
+                for frame in frames:
+                    blocks[str(title)].add(frame.html)
+            
+    print blocks
     
     for chunk in blocks:
         this_block = []
@@ -139,15 +155,66 @@ def test_frame(request):
     return render(request, "frame_test.html", context)
 
 def next(request, username):
-    user = mod.User.objects.filter(email=username)[0]
+    username = "george.j.london@gmail.com"
+    found_frames = set()
+    users = mod.User.objects.filter(email=username)
+    if users:
+        user = users[0]
+    else:
+        user = None 
     subs = get_subs()
-    feeds = Feed.objects.filter(user)
-    feed = feeds[0]
-    uri = '<iframe frameborder="0" height="43" scrollbars="no" scrolling="no" src="http://www.audiomack.com/embed2/xclusiveszone/hatin-on-a-youngin?btn=ff8a00&amp;bg=34342e&amp;bbg=ff8a00&amp;vbg=4d4b42&amp;vol=ff8a00&amp;dbg=ff8a00" width="100%"></iframe>'
+    
+    feeds = mod.Feed.objects.filter(users=user)
+    feed_uris = set()
+    for feed in feeds:
+        if feed.category != "music blogs":
+            continue
+        else:
+            feed_uri = feed.feed_uri
+            feed_uris.add(feed_uri)
+            print feed_uri
+        
+    feed_title, posts = get_posts_from_feed(feed_uri)
+    print "posts: ", posts
+    for post in posts:
+        print post.title
+        frames = parse_post(post.uri)
+        for frame in frames:
+            print frame
+            found_frames.add(frame)
+        
+    uri = list(found_frames)[0]
    
     context = {"frame": uri, }
+    
+    from django.utils import simplejson
+
+    some_data = {
+       'title': 'Title!',
+       "blog": "This Blog",
+       'iframe': uri,
+    }
+    
+    data = simplejson.dumps(some_data)
     print "testing"
-    return render(request, "frame_test.html", context)
+    return HttpResponse(data, mimetype='application/json')
+
+def get_frame_by_id(request, username, num):
+    frame = mod.Frame.objects.exclude(html__isnull=True).exclude(html__exact="[]")
+    if frame:
+        html = frame.html
+    else:
+        html = '<iframe frameborder="0" height="43" scrollbars="no" scrolling="no" src="http://www.audiomack.com/embed2/xclusiveszone/hatin-on-a-youngin?btn=ff8a00&amp;bg=34342e&amp;bbg=ff8a00&amp;vbg=4d4b42&amp;vol=ff8a00&amp;dbg=ff8a00" width="100%"></iframe>'
+    print html
+    some_data = {
+       'title': 'Title!',
+       "blog": "This Blog",
+       'iframe': html,
+    }
+    
+    data = simplejson.dumps(some_data)
+    print "id"
+    return HttpResponse(data, mimetype='application/json')
 
 def home(request):
 
