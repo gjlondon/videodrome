@@ -4,6 +4,7 @@ import urllib2
 import os
 from collections import defaultdict
 from random import shuffle
+from random import random
 
 import feedparser
 import requests
@@ -18,6 +19,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import loader, Context, RequestContext
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
+
 from django.utils import simplejson
 
 import rss_scraper.models as mod
@@ -52,20 +54,23 @@ def get_posts_from_feed(feed_uri):
     except AttributeError:
         title = "Untitled"
     for ent in d.entries:
-        post = None         
+        post = None
+        frames = None         
         ent_link = ent.link
-        try:
-            post = mod.Post.objects.get(uri=ent_link)
-            text = post.html
-        except mod.Post.DoesNotExist:
-            import pdb
+        #try:
+        #    post = mod.Post.objects.get(uri=ent_link)
+        #    frames = mod.Frame.objects.filter(post__uri=post.uri)
+        #    text = post.html
+        #except mod.Post.DoesNotExist:
+        #    import pdb
             #pdb.set_trace()
-            post = parse_post(ent_link)
-        if post:
-            posts.append(post)
+        frames = parse_post(ent_link, this_feed)
+        if frames:
+            for frame in frames:
+                posts.append(frame)
     return title, posts
 
-def parse_post(link):
+def parse_post(link, feed):
     found_frames = set()
     try:
         try:
@@ -78,29 +83,32 @@ def parse_post(link):
         print "no post exists fro %s" % link
         if link and len(r.text) > 0:
             print "Link: %s" % link
-            post = mod.Post(uri=link, html=text)
-            post.save()
+       #     post = mod.Post(uri=link, html=text, feed=feed)
+       #     post.save()
         else: 
             print "Couldn't find a post for %s" % ent
             return
         soup = BeautifulSoup(text)
         post_titles = soup.findAll("title")
-        if post_titles:
-            post.title = post_titles[0]
-            print post.title
-        else:
-            print "post has no title"
+     #   if post_titles:
+     #       post.title = post_titles[0]
+     #       print post.title
+     #   else:
+     #       print "post has no title"
         frames = soup.findAll("iframe")
         for frame in frames:
             src = frame["src"].lower()
             if "twitter" in src or "tumblr" in src or "facebook" in src or "comment" in src:
                 continue
             found_frames.add(str(frame))
+            """
             frame_obj = mod.Frame.objects.filter(html=str(frame))
             if not frame:
                 frame_obj = mod.Frame(html=str(frame), post = post)
+                print "saving frame ", frame_obj
                 frame_obj.save()            
             print frame
+            """
     except HTMLParser.HTMLParseError as e:
         print "Soup problem", e
         return
@@ -131,7 +139,8 @@ def get_feed(request):
             posts_by_feed[feed_uri] = posts
             i += len(posts)
             for post in posts:
-                frames = mod.Frame.objects.filter(post=post)
+                print post
+                frames = mod.Frame.objects.get(post=post)
                 for frame in frames:
                     blocks[str(title)].add(frame.html)
             
@@ -156,6 +165,7 @@ def test_frame(request):
 
 def next(request, username):
     username = "george.j.london@gmail.com"
+    
     found_frames = set()
     users = mod.User.objects.filter(email=username)
     if users:
@@ -173,8 +183,15 @@ def next(request, username):
             feed_uri = feed.feed_uri
             feed_uris.add(feed_uri)
             print feed_uri
-        
-    feed_title, posts = get_posts_from_feed(feed_uri)
+    i = 0  
+    for feed_uri in feed_uris:
+        if i > 20:
+            continue
+        feed_title, posts = get_posts_from_feed(feed_uri)
+        for post in posts:
+            i += 1
+            print posts
+    """
     print "posts: ", posts
     for post in posts:
         print post.title
@@ -182,8 +199,17 @@ def next(request, username):
         for frame in frames:
             print frame
             found_frames.add(frame)
-        
-    uri = list(found_frames)[0]
+    """
+    frames = ['<iframe width="420" height="315" src="http://www.youtube.com/embed/aroaEyaJm6o?rel=0" frameborder="0" allowfullscreen></iframe>',
+              '<iframe src="http://player.vimeo.com/video/52766487?autoplay=1" width="420" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
+              '<iframe width="420" height="315" src="http://www.youtube.com/embed/vo3BUZx5ZWQ?rel=0" frameborder="0" allowfullscreen></iframe>',
+              '<iframe width="420" height="315" src="http://www.youtube.com/embed/Fw1kV73uUo0?rel=0" frameborder="0" allowfullscreen></iframe>',
+              '<iframe width="420" height="315" src="http://www.youtube.com/embed/p5O8VjuXnK0?rel=0" frameborder="0" allowfullscreen></iframe>']
+              
+    from random import choice
+    uri = choice(frames)
+    
+#    uri = list(found_frames)[0]
    
     context = {"frame": uri, }
     
@@ -204,7 +230,7 @@ def get_frame_by_id(request, username, num):
     if frame:
         html = frame.html
     else:
-        html = '<iframe frameborder="0" height="43" scrollbars="no" scrolling="no" src="http://www.audiomack.com/embed2/xclusiveszone/hatin-on-a-youngin?btn=ff8a00&amp;bg=34342e&amp;bbg=ff8a00&amp;vbg=4d4b42&amp;vol=ff8a00&amp;dbg=ff8a00" width="100%"></iframe>'
+        html = '<iframe allowfullscreen frameborder=\"0\" height=\"259\" src=\"http://www.youtube.com/embed/j0yCNPbzwpE\" width=\"450\"></iframe>'
     print html
     some_data = {
        'title': 'Title!',
@@ -225,11 +251,11 @@ def get_subs():
     
     username = 'george.j.london@gmail.com'
     password = os.getenv("MYPASS")
-    user = mod.User.objects.filter(email=username)[0]
-    if not user:
+    try:
+        user = mod.User.objects.get(email=username)
+    except Exception:
         user = mod.User(email=username)
         user.save()
-
     # Authenticate to obtain SID
     auth_url = 'https://www.google.com/accounts/ClientLogin'
     auth_req_data = urllib.urlencode({'Email': username,
