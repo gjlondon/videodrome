@@ -47,7 +47,7 @@ def get_posts_from_feed(feed_uri):
     
     print "grabbing from %s" % feed_uri
 
-    this_feed = mod.Feed.objects.get(feed_uri = feed_uri)
+    #this_feed = mod.Feed.objects.get(feed_uri = feed_uri)
     d = feedparser.parse(feed_uri)
     try:
         title = d.feed.title
@@ -176,6 +176,7 @@ def next(request, username):
     
     feeds = mod.Feed.objects.filter(users=user)
     feed_uris = set()
+    found_frames = set()
     for feed in feeds:
         if feed.category != "music blogs":
             continue
@@ -191,6 +192,7 @@ def next(request, username):
         for post in posts:
             i += 1
             print posts
+            found_frames.add(post)
     """
     print "posts: ", posts
     for post in posts:
@@ -205,7 +207,8 @@ def next(request, username):
               '<iframe width="420" height="315" src="http://www.youtube.com/embed/vo3BUZx5ZWQ?rel=0" frameborder="0" allowfullscreen></iframe>',
               '<iframe width="420" height="315" src="http://www.youtube.com/embed/Fw1kV73uUo0?rel=0" frameborder="0" allowfullscreen></iframe>',
               '<iframe width="420" height="315" src="http://www.youtube.com/embed/p5O8VjuXnK0?rel=0" frameborder="0" allowfullscreen></iframe>']
-              
+    for frame in found_frames:
+        frames.append(frame)
     from random import choice
     uri = choice(frames)
     
