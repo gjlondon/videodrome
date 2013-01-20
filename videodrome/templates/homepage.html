@@ -1,54 +1,93 @@
-
-{% extends "banner_base.html" %}
-
-{% load i18n %}
 {% load static %}
-
-
-{% block head_title %}{% trans "Welcome" %}{% endblock %}
-
-{% block extra_loads %}
-
-{% endblock %}
-
-{% block body_class %}home{% endblock %}
-
-{% block banner %}
-
-    <div class="span13 offset3">
-    <div class="hero-unit" >
-	    
-	    	
-	    		<div id="homepage_intro">
-		
-			
-					   <h1>{% trans "Welcome to Videodrome" %}</h1>
-					   <p><h2>EXFM for Music Videos</h2>
-	
-				</div>
-				<div class="span10">
-					<a href="/feed" class="btn primary large">Start</a>
-				</div>
-		</div>
-	</div>
-	<div class="span12"></div>
-	<br>
-	
-	<div class="container">
-		{% if not user.is_authenticated %}
-		    <h2>Sign Up Now</h2>
-		    <p> 
-		        {% blocktrans %}
-		        Sign up now so that we can start personalizing recommendations just for you!
-		        {% endblocktrans %}
-		    </p>
-		    
-		        {% url what_next as what_next_url %}
-		        <p class="what_next">{% blocktrans %}Wondering <a href="{{ what_next_url }}" class="btn primary large">What Next</a>?{% endblocktrans %}</p>
-		
-		        {% url account_login as login_url %}
-		        
-	    {% endif %}
-	</div>
-
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Videodrome
+    </title>
+    <link href="{% get_static_prefix %}css/custom.css?body=1" media="all" rel="stylesheet" type="text/css">
+    <script src="{% get_static_prefix %}js/jquery-1.7.1.min.js">    </script>
+  </head>
+  <body>
+    <div class="app-container">
+      <div class="row register-login">
+        <div class="columns six register">
+          <h3>Register!
+          </h3>
+        </div>
+        <div class="columns six log-in">
+          <h3>Log In!
+          </h3>
+        </div>
+      </div>
+      <div class="placed-fixed">
+        <div class="row media-player">
+          <div class="media-player four offset-by-eight">
+            <div class="youtube-placement">
+            </div>
+          </div>
+        </div>
+        <div class="media-control"><a class="prev-media" href="#">Prev</a><a class="next-media" href="#">Next</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="columns three recent-container">
+          <div class="logo">THIS IS VIDEODROME
+          </div>
+          <div class="recent-favorites">
+            <h4>Your Recent Favorites
+            </h4>
+            <ul><a class="track" data-id="1337" href="#">
+                <li>Chad Valley - Shell Suite (Cashmere Cat Remix)
+                </li></a><a class="track" data-id="1334" href="#">
+                <li>Chad Valley - Shell Suite (Cashmere Cat Remix)
+                </li></a><a class="track" data-id="1332" href="#">
+                <li>Chad Valley - Shell Suite (Cashmere Cat Remix)
+                </li></a><a class="track" data-id="1331" href="#">
+                <li>Chad Valley - Shell Suite (Cashmere Cat Remix)
+                </li></a>
+            </ul>
+          </div>
+        </div>
+        <div class="columns five stream-container end">
+          <div class="stream-set row">
+            <div class="stream-item row">
+              <div class="columns eight">
+                <h2 class="item-title">
+                </h2><a class="item-source" href="http://toomanysebastians.net/2012/12/12/tiga-plush-jacques-lu-cont-remix/" target="_blank">Tiga – Plush (Jacques Lu Cont Remix)</a><span class="item-blog-source">Scraped From
+<a href="http://toomanysebastians.net/" target="_blank">Et Musique Pour Tous</a></span><span class="item-timestamp">Friday, January 18, 2013</span>
+              </div>
+              <div class="columns four">
+                <div class="play-item"><a class="track" data-id="1338" href="#">play</a>
+                </div>
+              </div>
+            </div>
+            <div class="stream-item row">
+              <div class="columns eight">
+                <h2 class="item-title">
+                </h2><a class="item-source" href="http://toomanysebastians.net/2012/12/12/tiga-plush-jacques-lu-cont-remix/" target="_blank">Tiga – Plush (Jacques Lu Cont Remix)</a><span class="item-blog-source">Scraped From
+<a href="http://toomanysebastians.net/" target="_blank">Et Musique Pour Tous</a></span><span class="item-timestamp">Friday, January 18, 2013</span>
+              </div>
+              <div class="columns four">
+                <div class="play-item"><a class="track" data-id="1338" href="#">play</a>
+                </div>
+              </div>
+            </div>
+            <div class="stream-item row">
+              <div class="columns eight">
+                <h2 class="item-title">
+                </h2><a class="item-source" href="http://toomanysebastians.net/2012/12/12/tiga-plush-jacques-lu-cont-remix/" target="_blank">Tiga – Plush (Jacques Lu Cont Remix)</a><span class="item-blog-source">Scraped From
+<a href="http://toomanysebastians.net/" target="_blank">Et Musique Pour Tous</a></span><span class="item-timestamp">Friday, January 18, 2013</span>
+              </div>
+              <div class="columns four">
+                <div class="play-item"><a class="track" data-id="1338" href="#">play</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/jquery.js">    </script>
+    <script src="/videodrome.js">    </script>
+  </body>
+</html>
