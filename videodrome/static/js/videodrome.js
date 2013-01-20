@@ -23,7 +23,7 @@ window.onload = function()
                 {
                    $(".track").click(function(event){
                    		event.preventDefault();
-					 	track = this;
+					 	track = this.getAttribute("data-id");
 					    getSong(track);
 					})
 
