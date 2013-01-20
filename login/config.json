@@ -1,0 +1,7 @@
+{
+    "client_id"     : "220452814732.apps.googleusercontent.com",
+    "client_secret" : "6SF--t8ecby4ysrgh1UKO1oo",
+    "scope2"        : "https://www.googleapis.com/auth/tasks",
+    "scope"         : "http://www.google.com/reader/api/0/subscription/list",
+    "redirect_uri"  : "https://mcdem.us/oauth2callback"
+}
