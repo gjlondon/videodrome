@@ -12,8 +12,9 @@ class Post(models.Model):
     
     uri = models.CharField(max_length=1200, unique=True)
     feed = models.ForeignKey(Feed)
-    title = models.CharField(max_length=10002)
-    html = models.CharField(max_length=2000000)
+    title = models.CharField(max_length=10002, blank=True)
+    html = models.CharField(max_length=2000000, blank=True)
+    random = models.CharField(max_length=10, default="random")
 
 class Frame(models.Model):
     html = models.CharField(max_length=10000)

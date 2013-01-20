@@ -6,6 +6,7 @@ from rss_scraper import views
 
 urlpatterns = patterns('',
     url(r'feed', views.get_feed, name='get_feed'),
+    url(r'refed', views.refresh_frames, name='refresh_frames'),
     url(r'^test/$', views.test_frame),
     
 )

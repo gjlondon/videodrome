@@ -42,9 +42,9 @@ def server_error(request, template_name='500.html'):
 def index(request):
     return render(request, 'home.html')
 
-def get_posts_from_feed(feed_uri):
+def get_posts_from_feed(feed):
     posts = []
-    
+    feed_uri = feed.feed_uri
     print "grabbing from %s" % feed_uri
 
     #this_feed = mod.Feed.objects.get(feed_uri = feed_uri)
@@ -57,62 +57,59 @@ def get_posts_from_feed(feed_uri):
         post = None
         frames = None         
         ent_link = ent.link
-        #try:
-        #    post = mod.Post.objects.get(uri=ent_link)
-        #    frames = mod.Frame.objects.filter(post__uri=post.uri)
-        #    text = post.html
-        #except mod.Post.DoesNotExist:
-        #    import pdb
-            #pdb.set_trace()
-        frames = parse_post(ent_link, this_feed)
-        if frames:
-            for frame in frames:
-                posts.append(frame)
+        try:
+            post = mod.Post.objects.get(uri=ent_link, feed=feed)
+        except mod.Post.DoesNotExist:
+            post = mod.Post(uri=ent_link, feed=feed)
+            post.save()
+        posts.append(post)
     return title, posts
 
-def parse_post(link, feed):
+def parse_post(post):
+    link = post.uri
     found_frames = set()
     try:
-        try:
-            r = requests.get(link)
-        except requests.ConnectionError as e:
-            print "Could not connect"
-            print e
-            return
-        text = r.text
-        print "no post exists fro %s" % link
-        if link and len(r.text) > 0:
-            print "Link: %s" % link
-       #     post = mod.Post(uri=link, html=text, feed=feed)
-       #     post.save()
-        else: 
-            print "Couldn't find a post for %s" % ent
-            return
+        r = requests.get(link)
+    except requests.ConnectionError as e:
+        print "Could not connect"
+        print e
+        return
+    text = r.text
+    if link and len(r.text) > 0:
+        print "Link: %s" % link
+        post.html = text
+        post.save()
+    else: 
+        print "Couldn't find a post for %s" % ent
+        return
+    try:
         soup = BeautifulSoup(text)
         post_titles = soup.findAll("title")
-     #   if post_titles:
-     #       post.title = post_titles[0]
-     #       print post.title
-     #   else:
-     #       print "post has no title"
+        if post_titles:
+            post.title = post_titles[0]
+            print post.title
+            ghost = post
+            import pdb
+            pdb.set_trace()
+            ghost.save()
+        else:
+            print "post has no title"
         frames = soup.findAll("iframe")
         for frame in frames:
             src = frame["src"].lower()
             if "twitter" in src or "tumblr" in src or "facebook" in src or "comment" in src:
                 continue
             found_frames.add(str(frame))
-            """
             frame_obj = mod.Frame.objects.filter(html=str(frame))
             if not frame:
                 frame_obj = mod.Frame(html=str(frame), post = post)
                 print "saving frame ", frame_obj
                 frame_obj.save()            
-            print frame
-            """
+            print frame            
     except HTMLParser.HTMLParseError as e:
         print "Soup problem", e
         return
-    return found_frames
+    return post.title, found_frames
         
 
 def get_feed(request):
@@ -156,6 +153,48 @@ def get_feed(request):
     context = {"frames": pass_frames, "other": [1,2,3]}
     return render(request, 'frames.html', context)
 
+def refresh_frames(username):
+    subs = get_subs()
+    print subs
+    feed_uris = set()
+    found_frames = set()
+    try:
+        user = mod.User.objects.get(email=username)
+    except:
+        username = "george.j.london@gmail.com"
+        user = mod.User.objects.get(email=username) 
+    subs = get_subs()
+    feeds = mod.Feed.objects.filter(users=user)
+    i = 0  
+    for feed in feeds:
+        if feed.category != "music blogs":
+            continue
+        else:
+            feed_title, posts = get_posts_from_feed(feed)
+                
+        for post in posts:
+            i += 1
+            print post
+            
+            post_title, frames = parse_post(post)
+            
+            if frames:
+                for frame in frames:
+                    
+                    found_frames.add(frame)
+        
+
+    some_data = {
+       'title': 'Title!',
+       "blog": "This Blog",
+       'iframe': found_frames,
+    }
+    
+    data = simplejson.dumps(some_data)
+    print "testing"
+    return HttpResponse(data, mimetype='application/json')
+    
+    
 def test_frame(request):
     uri = '<iframe frameborder="0" height="43" scrollbars="no" scrolling="no" src="http://www.audiomack.com/embed2/xclusiveszone/hatin-on-a-youngin?btn=ff8a00&amp;bg=34342e&amp;bbg=ff8a00&amp;vbg=4d4b42&amp;vol=ff8a00&amp;dbg=ff8a00" width="100%"></iframe>'
    
@@ -165,6 +204,7 @@ def test_frame(request):
 
 def next(request, username):
     all_frames = get_feed_list()
+    # TODO make this dynamic
     """username = "george.j.london@gmail.com"
     
     found_frames = set()
@@ -203,15 +243,19 @@ def next(request, username):
             print frame
             found_frames.add(frame)
     """
-    frames = ['<iframe width="420" height="315" src="http://www.youtube.com/embed/aroaEyaJm6o?rel=0" frameborder="0" allowfullscreen></iframe>',
+    frames = []
+    """['<iframe width="420" height="315" src="http://www.youtube.com/embed/aroaEyaJm6o?rel=0" frameborder="0" allowfullscreen></iframe>',
               '<iframe src="http://player.vimeo.com/video/52766487?autoplay=1" width="420" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
               '<iframe width="420" height="315" src="http://www.youtube.com/embed/vo3BUZx5ZWQ?rel=0" frameborder="0" allowfullscreen></iframe>',
               '<iframe width="420" height="315" src="http://www.youtube.com/embed/Fw1kV73uUo0?rel=0" frameborder="0" allowfullscreen></iframe>',
               '<iframe width="420" height="315" src="http://www.youtube.com/embed/p5O8VjuXnK0?rel=0" frameborder="0" allowfullscreen></iframe>']
+    """
+    
     for frame in all_frames:
         frames.append(frame)
     from random import choice
     uri = choice(frames)
+    
     
 #    uri = list(found_frames)[0]
    
