@@ -164,7 +164,8 @@ def test_frame(request):
     return render(request, "frame_test.html", context)
 
 def next(request, username):
-    username = "george.j.london@gmail.com"
+    all_frames = get_feed_list()
+    """username = "george.j.london@gmail.com"
     
     found_frames = set()
     users = mod.User.objects.filter(email=username)
@@ -193,7 +194,7 @@ def next(request, username):
             i += 1
             print posts
             found_frames.add(post)
-    """
+    
     print "posts: ", posts
     for post in posts:
         print post.title
@@ -207,7 +208,7 @@ def next(request, username):
               '<iframe width="420" height="315" src="http://www.youtube.com/embed/vo3BUZx5ZWQ?rel=0" frameborder="0" allowfullscreen></iframe>',
               '<iframe width="420" height="315" src="http://www.youtube.com/embed/Fw1kV73uUo0?rel=0" frameborder="0" allowfullscreen></iframe>',
               '<iframe width="420" height="315" src="http://www.youtube.com/embed/p5O8VjuXnK0?rel=0" frameborder="0" allowfullscreen></iframe>']
-    for frame in found_frames:
+    for frame in all_frames:
         frames.append(frame)
     from random import choice
     uri = choice(frames)
@@ -302,6 +303,89 @@ def get_subs():
                 this_feed.users.add(user)
                 print "added feed %s" % this_feed
     
-    return feeds        
+    return feeds  
+
+def get_feed_list():
+    subs = get_subs()
+    video_frames = []
+    pass_frames = []
+    blocks = defaultdict(set)
+    i = 0
+    # go through the subscribed feeds and grab iframes
+    for group in subs.items():
+        if group[0] != "music blogs":
+            continue
+        lis = list(group[1])
+        # avoid displaying in the same order ever refresh
+        if lis:
+            shuffle(lis)
+        else:
+            continue
+        for feed_uri in lis:
+            if i > 20: # only get the first twenty, otherwise it takes forever
+                    continue
+            print "grabbing from %s" % feed_uri
+
+            this_feed = mod.Feed.objects.get(feed_uri = feed_uri)
+            d = feedparser.parse(feed_uri)
+            if d.feed.title:
+                title = d.feed.title
+            else:
+                title = "Untitled"
+            for ent in d.entries:
+                if i > 20:
+                    continue
+                
+                try:
+                    post = mod.Post.objects.get(uri=ent.link)
+                    text = post.html
+                except mod.Post.DoesNotExist:
+                    r = requests.get(ent.link)
+                    text = r.text
+                    print "no post exists fro %s" % ent.link
+                    if ent.link and len(r.text) > 0 and this_feed:
+                        try:
+                            print "Link: %s" % ent.link
+                            #print r.text
+                            print this_feed.id
+                            post = mod.Post(uri=ent.link, html=text) #, feed=this_feed)
+                            
+                            #print post.uri
+                            
+                            #print post
+                            post.save()
+                        except Exception as e:
+                            print e
+                    else: 
+                        print "Couldn't find a post for %s" % ent
+                
+                try:
+                    soup = BeautifulSoup(text)
+                    frames = soup.findAll("iframe")
+                    for frame in frames:
+                        src = frame["src"].lower()
+                        if "twitter" in src or "tumblr" in src or "facebook" in src or "comment" in src:
+                            continue
+                        blocks[str(title)].add(str(frame))
+                        frame = mod.Frame.objects.filter(html=str(frame))
+                        if not frame:
+                            frame = mod.Frame(html=str(frame), post = post)
+                            frame.save()
+                        
+                        print frame
+                        i += 1
+                except Exception as e:
+                    print e
+    print video_frames
+    all_frames = []
+    for chunk in blocks:
+        this_block = []
+        this_block.append(chunk)
+        for item in blocks[chunk]:
+            this_block.append(item)
+            all_frames.append(item)
+        pass_frames.append(this_block)
+    
+    return all_frames      
                 
         
