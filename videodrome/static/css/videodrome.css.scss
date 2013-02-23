@@ -3,10 +3,108 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 //login-register
-.register-login{
-	height:200px;	
+
+// Place all the styles related to the pages controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+/* Off canvas layout CSS/JS provided by or adapted from work by Jason Weaver and Luke Wroblewski Requires globals.css grid.css */
+body.off-canvas { padding: 0; margin: 0; }
+
+.container { width: 100%; }
+
+.row { overflow: hidden; }
+
+.row .row { overflow: visible; }
+
+.paneled .container { overflow: hidden; }
+
+.paneled .row { width: 100%; }
+
+[role="main"]:before { content: " "; position: absolute; z-index: -1; top: 0; left: -100%; width: 100%; height: 100%; }
+
+[role="complementary"], [role="main"] { width: 100%; padding: 0 15px; display: block; position: relative; z-index: 1; -webkit-transition: 0.25s all ease-in; -moz-transition: 0.25s all ease-in; -o-transition: 0.25s all ease-in; transition: 0.25s all ease-in; }
+
+.paneled [role="main"] { padding: 0; }
+
+.page-panel { width: 100%; padding: 0 15px; -webkit-transition: 0.3s margin ease-in-out; -moz-transition: 0.3s margin ease-in-out; -o-transition: 0.3s margin ease-in-out; transition: 0.3s margin ease-in-out; background: #fff; }
+
+#switchPanels { margin: 0 -15px; }
+
+.hide-extras [role="complementary"] { display: block; }
+
+[role="navigation"]#topMenu { -webkit-transition: 0.25s all ease-in; -moz-transition: 0.25s all ease-in; -o-transition: 0.25s all ease-in; transition: 0.25s all ease-in; }
+
+[role="navigation"]#topMenu ul { margin-top: 0; }
+
+[role="complementary"] { margin-left: -100%; width: 80%; float: left; z-index: 2; }
+
+[role="main"] { margin-left: 0; float: right; z-index: 1; position: relative; }
+
+.paneled [role="main"] { background: #fff; width: 500%; overflow: hidden; float: none; position: relative; left: 0; -webkit-transition: 0.15s all ease-in; -moz-transition: 0.15s all ease-in; -o-transition: 0.15s all ease-in; transition: 0.15s all ease-in; }
+
+.page-panel { min-height: 400px; float: left; margin: 0; width: 20%; }
+
+.active [role="complementary"] { margin-left: 0; }
+
+.active [role="main"] { margin-right: -80%; }
+
+.active-menu [role="navigation"]#topMenu { margin-top: 0 !important; }
+
+@media all and (min-width: 768px) { menu-button, .sidebar-button { display: none; }
+  [role="complementary"] { width: 20%; margin-left: 0; float: left; padding: 0 15px; }
+  [role="main"] { width: 80%; padding: 0 15px; }
+  .paneled [role="main"] { width: 100%; padding: 0; background: #f4f4f4; left: 0 !important; }
+  .page-panel { display: block; min-height: 800px; float: none; margin: 0; width: 100%; background: #f4f4f4; }
+  .hide-extras [role="main"] { width: 100%; }
+  .hide-extras [role="complementary"] { display: none; }
+  [role="navigation"]#topMenu { display: none; } }
+
+
+body{
+	font-family: "nimbus-sans",sans-serif;
+	font-style: normal;
+	font-weight: 400;
+	background: #FDFBF1;
 }
 
-// media 
-.media-player{height:100%;width:100%;position:fixed;padding:10px;border-left:1px solid #eee;}
-.youtube-placement{height:250px;background:#111;}
+.button{
+	background: #FFF !important;
+	border: 1px solid #AA2D18 !important;
+	color:#F75631;
+	font-size: 2em;
+	.queue-icon{
+		width:35px;
+		position: relative;
+		top: 8px;
+		margin-right: 9px;
+	}
+}
+.button:hover{
+
+}
+
+.button:hover{
+	color:#F75631;
+}
+.play-now{
+	width:50px;
+	height:50px;
+	position:relative;
+	display:inline-block;
+	cursor:pointer;
+}
+
+
+.queue-next{
+	width:50px;
+	height:50px;
+	position:relative;
+	display:inline-block;
+	cursor:pointer;
+}
+
+.feed-item{border-bottom: 1px solid #999;padding: 15px 0px}
+.item-title{font-size:1.2em; color:#333;}
+.title-container{min-height: 50px !important;padding-top: 16px !important;padding-left: 0;}
+.payload{width:100%;min-height:100px;border:1px solid #999;}
