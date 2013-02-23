@@ -2,7 +2,7 @@ import os
 import dj_database_url
 # Django settings for videodrome project.
 
-ENVIRONMENT_SETTING_FILE = 'dev.settings'
+ENVIRONMENT_SETTING_FILE = 'safe.settings'
 ### this will load all environment file settings in here
 execfile("/Users/rogueleaderr/programming/projects/hackathons/videodrome/videodrome/" + ENVIRONMENT_SETTING_FILE)
 
