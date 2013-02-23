@@ -80,7 +80,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = os.getenv("django-secret")
+SECRET_KEY = os.getenv("django-secret", "secret")
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -189,8 +189,8 @@ LOGGING = {
 EMAIL_USE_TLS = True
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = os.getenv("my_email")
-EMAIL_HOST_PASSWORD = os.getenv("MYPASS")
+EMAIL_HOST_USER = os.getenv("my_email", "default@default.com")
+EMAIL_HOST_PASSWORD = os.getenv("MYPASS", "default")
 
 ANONYMOUS_USER_ID = -1
 

@@ -392,7 +392,7 @@ def get_feed_list():
                             print "Link: %s" % ent.link
                             #print r.text
                             print this_feed.id
-                            post = mod.Post(uri=ent.link, html=text) #, feed=this_feed)
+                            post = mod.Post(uri=ent.link, html=text, feed=this_feed)
                             
                             #print post.uri
                             
@@ -411,12 +411,12 @@ def get_feed_list():
                         if "twitter" in src or "tumblr" in src or "facebook" in src or "comment" in src:
                             continue
                         blocks[str(title)].add(str(frame))
-                        frame = mod.Frame.objects.filter(html=str(frame))
-                        if not frame:
-                            frame = mod.Frame(html=str(frame), post = post)
-                            frame.save()
+                        frame_obj = mod.Frame.objects.filter(html=str(frame))
+                        if not frame_obj:
+                            frame_obj = mod.Frame(html=str(frame), post = post)
+                            frame_obj.save()
                         
-                        print frame
+                        print frame_obj.html
                         i += 1
                 except Exception as e:
                     print e
