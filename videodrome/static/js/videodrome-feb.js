@@ -38,3 +38,40 @@
     $('html, body').animate({scrollTop : $target.offset().top}, 300);
   });
 }(this, document, jQuery));
+
+function getSong(id){
+  $.getJSON('http://localhost:3000/payload.json', function(payload) {
+           console.log('selected media!' + id);
+           $('.payload').html(payload.iframe);
+    });
+ }
+
+ function nextSong(){
+  $.getJSON('http://localhost:3000/payload.json', function(payload) {
+           console.log('selected media!' + payload.iframe);
+           $('.payload').html(payload.iframe);
+    });
+ }
+
+ function prevSong(){
+  $.getJSON('http://localhost:3000/payload.json', function(payload) {
+           console.log('selected media!' + payload.iframe);
+           $('.payload').html(payload.iframe);
+    });
+ }
+
+window.onload = function(){
+                  $(".play-now").click(function(event){
+                    event.preventDefault();
+                    track = this.getAttribute("data-id");
+                    getSong(track);
+                  })
+                  $(".next-media").click(function(event){
+                    event.preventDefault();
+                    nextSong();
+                  })
+                  $(".prev-media").click(function(event){
+                    event.preventDefault();
+                    prevSong();
+                  })
+                };
